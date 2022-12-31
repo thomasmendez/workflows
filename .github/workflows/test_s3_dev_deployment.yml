@@ -60,6 +60,9 @@ jobs:
     needs: [pre_build, build]
     steps:
       - uses: actions/checkout@v3
+        with:
+          ref: feat/reusable-workflow-dev
+          
       - name: Local Action Call
         uses: ./.github/actions/s3_dev_deployment.yml
         with:
