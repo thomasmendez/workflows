@@ -56,7 +56,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Local Action Call
-        uses: ./.github/workflows/s3_dev_deployment.yml
+        uses: ./.github/workflows/s3_dev_deployment.yml@${{ github.sha }}
         with:
           AWS_BUCKET_NAME: ${{ needs.pre_build.outputs.AWS_BUCKET_NAME }}
           DIST_NAME: ${{ needs.pre_build.outputs.DIST_NAME }}
