@@ -20,13 +20,13 @@ jobs:
         id: bucket_name_suffix
         run: |
           suffix=$(echo ${{ github.ref_name }} | sed 's/\//-/')
-          echo "::set-output name=suffix::$suffix"
+          echo "suffix=$suffix" >> $GITHUB_OUTPUT
 
       - name: "Create bucket_name Output"
         id: bucket_name
         run: |
           bucket_name=$(echo ${{ env.AWS_BUCKET_NAME }}-${{ steps.bucket_name_suffix.outputs.suffix }})
-          echo "::set-output name=bucket::$bucket_name"
+          echo "bucket=$bucket_name" >> $GITHUB_OUTPUT
 
   build:
     runs-on: ubuntu-latest
