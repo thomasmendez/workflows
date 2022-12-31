@@ -1,5 +1,6 @@
 name: Test - S3 Dev Deployment
 on:
+  workflow_call:
   push:
     branches-ignore:
       - main
@@ -61,7 +62,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Local Action Call
-        uses: ./.github/workflows/s3_dev_deployment.yml@524d34b44e6ec97d22f73e88036d6e6c143a2d49
+        uses: ./.github/workflows/s3_dev_deployment.yml@feat/reusable-workflow-dev
         with:
           AWS_BUCKET_NAME: ${{ needs.pre_build.outputs.AWS_BUCKET_NAME }}
           DIST_NAME: ${{ needs.pre_build.outputs.DIST_NAME }}
