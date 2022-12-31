@@ -7,7 +7,7 @@ on:
     branches:
       - "main" 
     paths:
-      - ".github/workflows/s3_dev_deployment.yaml"
+      - ".github/actions/s3_dev_deployment.yaml"
 
 jobs:
   pre_build:
