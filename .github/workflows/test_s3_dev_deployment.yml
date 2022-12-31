@@ -1,0 +1,59 @@
+name: Test - S3 Dev Deployment
+on:
+  push:
+    branches-ignore:
+      - main
+
+jobs:
+  pre_build:
+    runs-on: ubuntu-latest
+    env:
+      AWS_BUCKET_NAME: react-template-simple-site-dev
+      DIST_NAME: dist-dev
+      DIST_PATH: dist/
+    outputs:
+      AWS_BUCKET_NAME: ${{ steps.bucket_name.outputs.bucket }}
+      DIST_NAME: ${{ env.DIST_NAME }}
+      DIST_PATH: ${{ env.DIST_PATH }}
+    steps:
+      - name: "Create bucket_name_suffix Output"
+        id: bucket_name_suffix
+        run: |
+          suffix=$(echo ${{ github.ref_name }} | sed 's/\//-/')
+          echo "::set-output name=suffix::$suffix"
+
+      - name: "Create bucket_name Output"
+        id: bucket_name
+        run: |
+          bucket_name=$(echo ${{ env.AWS_BUCKET_NAME }}-${{ steps.bucket_name_suffix.outputs.suffix }})
+          echo "::set-output name=bucket::$bucket_name"
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Clone react-template-simple-site repository
+      uses: actions/checkout@v3
+      with:
+        repository: thomasmendez/react-template-simple-site
+        ref: 1.1.1
+
+    - name: Build App
+      run: yarn run build
+
+    - name: Create dist Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ needs.pre_build.outputs.DIST_NAME }}
+        path: ${{ needs.pre_build.outputs.DIST_PATH }}
+        retention-days: 1
+
+  deploy:
+    uses: ./s3_dev_deployment.yml
+    with:
+      AWS_BUCKET_NAME: ${{ needs.pre_build.outputs.AWS_BUCKET_NAME }}
+      DIST_NAME: ${{ needs.pre_build.outputs.DIST_NAME }}
+      DIST_PATH: ${{ needs.pre_build.outputs.DIST_PATH }}
+    secrets:
+      TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
