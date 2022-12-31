@@ -48,7 +48,7 @@ jobs:
         retention-days: 1
 
   deploy:
-    uses: ./s3_dev_deployment.yml@${{ github.GITHUB_REF_NAME }}
+    uses: ./s3_dev_deployment.yml@${{ github.sha }}
     with:
       AWS_BUCKET_NAME: ${{ needs.pre_build.outputs.AWS_BUCKET_NAME }}
       DIST_NAME: ${{ needs.pre_build.outputs.DIST_NAME }}
