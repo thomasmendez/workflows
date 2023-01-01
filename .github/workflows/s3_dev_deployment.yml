@@ -36,7 +36,7 @@ jobs:
     runs-on: ubuntu-latest
     if: github.ref != 'refs/heads/main'
     steps:
-      - name: Clone this repository
+      - name: Clone workflow repository
         uses: actions/checkout@v3
         with:
           repository: thomasmendez/workflows
