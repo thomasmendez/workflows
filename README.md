@@ -22,6 +22,6 @@ build:
     DIST_PATH: ${{ needs.pre_build.outputs.DIST_PATH }}
   secrets:
     TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
-    AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
+    AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 ```
