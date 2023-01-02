@@ -1,4 +1,4 @@
-name: S3 Dev Deployment
+name: S3 Stg Deployment
 
 on:
   workflow_call:
