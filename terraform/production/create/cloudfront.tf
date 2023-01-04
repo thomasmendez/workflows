@@ -22,7 +22,7 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
   comment             = "Managed by Terraform"
   default_root_object = "index.html"
 
-  aliases = ["${var.sub_domain}.${var.domain}"]
+  aliases = var.sub_domain ? ["${var.sub_domain}.${var.domain}"] : ["${var.domain}"]
 
   default_cache_behavior {
     allowed_methods  = ["GET", "HEAD"]
