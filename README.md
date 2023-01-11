@@ -1,6 +1,6 @@
 # Github Action Workflows
 
-- [S3 Trunk Based Development](https://github.com/thomasmendez/workflows/docs/s3_trunk_based_development.md)
+- [S3 Trunk Based Development](https://github.com/thomasmendez/workflows/docs/s3_trunk_based_development.md) - Creates and deploys development, staging, and production environment infastructure for built SPA applications
 
 ## How to Setup
 
