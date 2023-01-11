@@ -1,6 +1,6 @@
 # Github Action Workflows
 
-- [S3 Trunk Based Development](https://github.com/thomasmendez/workflows/docs/s3_trunk_based_development.md) - Creates and deploys development, staging, and production environment infastructure for built SPA applications
+- [S3 Trunk Based Development](https://github.com/thomasmendez/workflows/blob/main/docs/s3_trunk_based_development.md) - Creates and deploys development, staging, and production environment infastructure for built SPA applications
 
 ## How to Setup
 
@@ -12,7 +12,7 @@
 
 ### Set Workflow to Use
 
-Create a job that uses the workflow file. It can be similar to the one below. You can find specifc examples in the [docs](https://github.com/thomasmendez/workflows/docs) folder
+Create a job that uses the workflow file. It can be similar to the one below. You can find specifc examples in the [docs](https://github.com/thomasmendez/workflows/tree/main/docs/DOCS.md) folder
 
 ```yml
 build:
