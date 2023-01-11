@@ -1,16 +1,18 @@
-# workflows
+# Github Action Workflows
 
-Github Action Workflows
+- [S3 Trunk Based Development](https://github.com/thomasmendez/workflows/docs/s3_trunk_based_development.md)
 
 ## How to Setup
 
 ### Create Submodule at Desired Repo
 
+*Note: Certain workflows may require the use of files in this repository*
+
 `git submodule add https://github.com/thomasmendez/workflows.git`
 
 ### Set Workflow to Use
 
-Create a job that uses the workflow file. It can be similar to the one below.
+Create a job that uses the workflow file. It can be similar to the one below. You can find specifc examples in the [docs](https://github.com/thomasmendez/workflows/docs) folder
 
 ```yml
 build:
