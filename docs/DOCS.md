@@ -2,7 +2,7 @@
 
 - [S3 Trunk Based Development](https://github.com/thomasmendez/workflows/blob/main/docs/s3_trunk_based_development.md) - Creates and deploys development, staging, and production environment infastructure for built SPA applications
 
-Quickstart for [S3 Trunk Based Development](https://github.com/thomasmendez/workflows/blob/main/docs/s3_trunk_based_development.md)
+Quickstart for [S3 Trunk Based Development](https://github.com/thomasmendez/workflows/blob/main/docs/s3_trunk_based_development.md) after completing requirements 
 
 Example of Development CI Workflow ![Development.yml CI Workflow Example](https://github.com/thomasmendez/workflows/blob/main/docs/images/dev_deployment.png)
 
