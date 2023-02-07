@@ -42,7 +42,7 @@ on:
 
 ### pre_build Job
 
-Sample `pre_build` job template for creating variables and passing them to different jobs in the workflow
+Sample `pre_build` job template for creating variables and passing them to different jobs in the workflow. This will add `-dev-<branch-name>` to make the dev s3 bucket easily identifiable. Example `-dev-feature-name`
 
 ```yml
 jobs:
@@ -102,7 +102,6 @@ jobs:
           retention-days: 1
 ```
 
-
 ### deploy Job
 
 Sample `deploy` job template
@@ -138,6 +137,8 @@ on:
       - main
 ```
 
+Example of Development CI Workflow ![Development.yml CI Workflow Example](https://github.com/thomasmendez/workflows/blob/main/docs/images/s3_trunk_based_development.md)
+
 - Development.yml Cleanup CI - [s3_dev_deployment_cleanup.yml](https://github.com/thomasmendez/workflows/blob/main/.github/workflows/s3_dev_deployment_cleanup.yml)
 
 Run and destroy S3 bucket that had related feature branch merged in
@@ -148,6 +149,8 @@ on:
   pull_request:
     types: [closed]
 ```
+
+Example of Development CI Cleanup Workflow ![Development.yml Cleanup CI Workflow Example](https://github.com/thomasmendez/workflows/blob/main/docs/images/dev_deployment_cleanup.png)
 
 - Staging.yml CI - [s3_stg_deployment.yml](https://github.com/thomasmendez/workflows/blob/main/.github/workflows/s3_stg_deployment.yml)
 
@@ -160,6 +163,8 @@ on:
     branches:
       - main
 ```
+
+Example of Staging CI Cleanup Workflow ![Staging.yml CI Workflow Example](https://github.com/thomasmendez/workflows/blob/main/docs/images/stg_deployment.png)
 
 - Production.yml CI - [s3_prd_deployment.yml](https://github.com/thomasmendez/workflows/blob/main/.github/workflows/s3_prd_deployment.yml)
 

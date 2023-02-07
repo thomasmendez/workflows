@@ -4,6 +4,8 @@
 
 Quickstart for [S3 Trunk Based Development](https://github.com/thomasmendez/workflows/blob/main/docs/s3_trunk_based_development.md)
 
+Example of Development CI Workflow ![Development.yml CI Workflow Example](https://github.com/thomasmendez/workflows/blob/main/docs/images/dev_deployment.png)
+
 ```yml
 name: Development.yml CI
 on:
