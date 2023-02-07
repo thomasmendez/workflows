@@ -137,7 +137,7 @@ on:
       - main
 ```
 
-Example of Development CI Workflow ![Development.yml CI Workflow Example](https://github.com/thomasmendez/workflows/blob/main/docs/images/s3_trunk_based_development.md)
+Example of Development CI Workflow ![Development.yml CI Workflow Example](https://github.com/thomasmendez/workflows/blob/main/docs/images/dev_deployment.png)
 
 - Development.yml Cleanup CI - [s3_dev_deployment_cleanup.yml](https://github.com/thomasmendez/workflows/blob/main/.github/workflows/s3_dev_deployment_cleanup.yml)
 
