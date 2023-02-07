@@ -26,6 +26,10 @@ The following secrets are required for all workflow files:
 - `AWS_ACCESS_KEY_ID` - Obtained from a IAM user
 - `AWS_SECRET_ACCESS_KEY` - Obtained from a IAM user
 
+### Add Workflow Submodule
+
+Please follow the [README.md](https://github.com/thomasmendez/workflows) instructions for creating this repo as a submodule
+
 ## Quickstart Guide
 
 ### On Branch Push
