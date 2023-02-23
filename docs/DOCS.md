@@ -64,7 +64,7 @@ jobs:
 
   deploy:
     needs: [pre_build, build]
-    uses: thomasmendez/workflows/.github/workflows/s3_dev_deployment.yml@main
+    uses: thomasmendez/workflows/.github/workflows/s3_spa_dev_deployment.yml@main
     with:
       AWS_BUCKET_NAME: ${{ needs.pre_build.outputs.AWS_BUCKET_NAME }}
       DIST_NAME: ${{ needs.pre_build.outputs.DIST_NAME }}
