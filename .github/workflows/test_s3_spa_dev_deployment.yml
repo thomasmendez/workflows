@@ -9,7 +9,7 @@ on:
     branches:
       - "main" 
     paths:
-      - ".github/workflows/s3_dev_deployment.yaml"
+      - ".github/workflows/s3_spa_dev_deployment.yaml"
 
 jobs:
   pre_build:
@@ -66,7 +66,7 @@ jobs:
           ref: feat/reusable-workflow-dev
 
       - name: Local Action Call
-        uses: ./.github/actions/s3_dev_deployment.yml
+        uses: ./.github/actions/s3_spa_dev_deployment.yml
         with:
           AWS_BUCKET_NAME: ${{ needs.pre_build.outputs.AWS_BUCKET_NAME }}
           DIST_NAME: ${{ needs.pre_build.outputs.DIST_NAME }}
