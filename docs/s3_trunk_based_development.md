@@ -6,10 +6,10 @@ These workflows allow you to automatically deploy your SPA build to an S3 bucket
 
 1. Create a feature branch from main
 2. Push changes to feature branch
-3. [s3_dev_deployment.yml](https://github.com/thomasmendez/workflows/blob/main/.github/workflows/s3_dev_deployment.yml) file will deploy a S3 bucket based on SPA build artifact
-4. When merging feature branch to main, previous feature branch S3 bucket will be deleted with [s3_dev_deployment_cleanup.yml](https://github.com/thomasmendez/workflows/blob/main/.github/workflows/s3_dev_deployment_cleanup.yml) file
-5. When merging feature branch to main, a staging S3 bucket will be deployed from the [s3_stg_deployment.yml](https://github.com/thomasmendez/workflows/blob/main/.github/workflows/s3_stg_deployment.yml) file
-6. When ready to deploy changes to production, a manual action can be run with the [s3_prd_deployment.yml](https://github.com/thomasmendez/workflows/blob/main/.github/workflows/s3_prd_deployment.yml) file. A Cloudfront distribution is also created. It is possible to provide a subdomain set for the cloudfront distribution, e.g `my_sub_domain.domain_name.com` instead of `www.domain_name.com` if desired. 
+3. [s3_spa_dev_deployment.yml](https://github.com/thomasmendez/workflows/blob/main/.github/workflows/s3_spa_dev_deployment.yml) file will deploy a S3 bucket based on SPA build artifact
+4. When merging feature branch to main, previous feature branch S3 bucket will be deleted with [s3_spa_dev_deployment_cleanup.yml](https://github.com/thomasmendez/workflows/blob/main/.github/workflows/s3_spa_dev_deployment_cleanup.yml) file
+5. When merging feature branch to main, a staging S3 bucket will be deployed from the [s3_spa_stg_deployment.yml](https://github.com/thomasmendez/workflows/blob/main/.github/workflows/s3_spa_stg_deployment.yml) file
+6. When ready to deploy changes to production, a manual action can be run with the [s3_spa_prd_deployment.yml](https://github.com/thomasmendez/workflows/blob/main/.github/workflows/s3_spa_prd_deployment.yml) file. A Cloudfront distribution is also created. It is possible to provide a subdomain set for the cloudfront distribution, e.g `my_sub_domain.domain_name.com` instead of `www.domain_name.com` if desired. 
 
 ## Requirements
 
@@ -114,7 +114,7 @@ Sample `deploy` job template
 jobs:
   deploy:
     needs: [pre_build, build]
-    uses: thomasmendez/workflows/.github/workflows/s3_dev_deployment.yml@main
+    uses: thomasmendez/workflows/.github/workflows/s3_spa_dev_deployment.yml@main
     with:
       AWS_BUCKET_NAME: ${{ needs.pre_build.outputs.AWS_BUCKET_NAME }}
       DIST_NAME: ${{ needs.pre_build.outputs.DIST_NAME }}
@@ -129,7 +129,7 @@ jobs:
 
 ### Files & Recommended Events
 
-- Development.yml CI - [s3_dev_deployment.yml](https://github.com/thomasmendez/workflows/blob/main/.github/workflows/s3_dev_deployment.yml)
+- Development.yml CI - [s3_spa_dev_deployment.yml](https://github.com/thomasmendez/workflows/blob/main/.github/workflows/s3_spa_dev_deployment.yml)
 
 Run and deploy S3 on feature branch only
 
@@ -143,7 +143,7 @@ on:
 
 Example of Development CI Workflow ![Development.yml CI Workflow Example](https://github.com/thomasmendez/workflows/blob/main/docs/images/dev_deployment.png)
 
-- Development.yml Cleanup CI - [s3_dev_deployment_cleanup.yml](https://github.com/thomasmendez/workflows/blob/main/.github/workflows/s3_dev_deployment_cleanup.yml)
+- Development.yml Cleanup CI - [s3_spa_dev_deployment_cleanup.yml](https://github.com/thomasmendez/workflows/blob/main/.github/workflows/s3_spa_dev_deployment_cleanup.yml)
 
 Run and destroy S3 bucket that had related feature branch merged in
 
@@ -156,7 +156,7 @@ on:
 
 Example of Development CI Cleanup Workflow ![Development.yml Cleanup CI Workflow Example](https://github.com/thomasmendez/workflows/blob/main/docs/images/dev_deployment_cleanup.png)
 
-- Staging.yml CI - [s3_stg_deployment.yml](https://github.com/thomasmendez/workflows/blob/main/.github/workflows/s3_stg_deployment.yml)
+- Staging.yml CI - [s3_spa_stg_deployment.yml](https://github.com/thomasmendez/workflows/blob/main/.github/workflows/s3_spa_stg_deployment.yml)
 
 Run and deploy S3 bucket to a stg environment when merge is pushed to `main`
 
@@ -170,7 +170,7 @@ on:
 
 Example of Staging CI Cleanup Workflow ![Staging.yml CI Workflow Example](https://github.com/thomasmendez/workflows/blob/main/docs/images/stg_deployment.png)
 
-- Production.yml CI - [s3_prd_deployment.yml](https://github.com/thomasmendez/workflows/blob/main/.github/workflows/s3_prd_deployment.yml)
+- Production.yml CI - [s3_spa_prd_deployment.yml](https://github.com/thomasmendez/workflows/blob/main/.github/workflows/s3_spa_prd_deployment.yml)
 
 Run on manual click in Action -> `Production.yml CI` -> `Run workflow` from `Branch: main`
 
