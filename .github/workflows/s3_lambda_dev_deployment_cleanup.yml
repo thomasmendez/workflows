@@ -17,6 +17,22 @@ on:
         default: 'us-east-2'
         required: false
         type: string
+      AWS_LAMBDA_FUNCTION_S3_KEY:
+        description: "Lambda S3 zip name for S3 bucket function"
+        required: true
+        type: string
+      AWS_LAMBDA_FUNCTION_NAME:
+        description: "Lambda function name"
+        required: true
+        type: string
+      AWS_LAMBDA_FUNCTION_HANDLER:
+        description: "Lambda function handler"
+        required: true
+        type: string
+      AWS_LAMBDA_FUNCTION_RUNTIME:
+        description: "Lambda function runtime and version"
+        required: true
+        type: string
     secrets:
       TF_API_TOKEN:
         description: 'The credentials for Terraform Cloud'
@@ -60,7 +76,7 @@ jobs:
           export AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}"
           export AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}"
           export AWS_DEFAULT_REGION="${{ inputs.AWS_REGION }}"
-          terraform -chdir=terraform/development/lambda/destroy plan -var="aws_bucket_name=${{ inputs.AWS_BUCKET_NAME }}" -no-color
+          terraform -chdir=terraform/development/lambda/destroy plan -var="aws_bucket_name=${{ inputs.AWS_BUCKET_NAME }}" -var="lambda_function_s3_key=${{ inputs.AWS_LAMBDA_FUNCTION_S3_KEY }}" -var="lambda_function_name=${{ inputs.AWS_LAMBDA_FUNCTION_NAME }}" var="lambda_function_handler=${{ inputs.AWS_LAMBDA_FUNCTION_HANDLER }}" -var="lambda_function_runtime=${{ inputs.AWS_LAMBDA_FUNCTION_RUNTIME }}" -no-color
 
       - name: Terraform Apply - Destroy Existing Bucket
         id: apply-destroy
@@ -69,6 +85,6 @@ jobs:
           export AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}"
           export AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}"
           export AWS_DEFAULT_REGION="${{ inputs.AWS_REGION }}"
-          terraform -chdir=terraform/development/lambda/destroy import -var="aws_bucket_name=${{ inputs.AWS_BUCKET_NAME }}" aws_s3_bucket.bucketdev ${{ inputs.AWS_BUCKET_NAME }}
-          terraform -chdir=terraform/development/lambda/destroy apply -var="aws_bucket_name=${{ inputs.AWS_BUCKET_NAME }}" -auto-approve
-          terraform -chdir=terraform/development/lambda/destroy destroy -var="aws_bucket_name=${{ inputs.AWS_BUCKET_NAME }}" -auto-approve
+          terraform -chdir=terraform/development/lambda/destroy import -var="aws_bucket_name=${{ inputs.AWS_BUCKET_NAME }}" -var="lambda_function_s3_key=${{ inputs.AWS_LAMBDA_FUNCTION_S3_KEY }}" -var="lambda_function_name=${{ inputs.AWS_LAMBDA_FUNCTION_NAME }}" var="lambda_function_handler=${{ inputs.AWS_LAMBDA_FUNCTION_HANDLER }}" -var="lambda_function_runtime=${{ inputs.AWS_LAMBDA_FUNCTION_RUNTIME }}" aws_s3_bucket.bucketdev ${{ inputs.AWS_BUCKET_NAME }}
+          terraform -chdir=terraform/development/lambda/destroy apply -var="aws_bucket_name=${{ inputs.AWS_BUCKET_NAME }}" -var="lambda_function_s3_key=${{ inputs.AWS_LAMBDA_FUNCTION_S3_KEY }}" -var="lambda_function_name=${{ inputs.AWS_LAMBDA_FUNCTION_NAME }}" var="lambda_function_handler=${{ inputs.AWS_LAMBDA_FUNCTION_HANDLER }}" -var="lambda_function_runtime=${{ inputs.AWS_LAMBDA_FUNCTION_RUNTIME }}" -auto-approve
+          terraform -chdir=terraform/development/lambda/destroy destroy -var="aws_bucket_name=${{ inputs.AWS_BUCKET_NAME }}" -var="lambda_function_s3_key=${{ inputs.AWS_LAMBDA_FUNCTION_S3_KEY }}" -var="lambda_function_name=${{ inputs.AWS_LAMBDA_FUNCTION_NAME }}" var="lambda_function_handler=${{ inputs.AWS_LAMBDA_FUNCTION_HANDLER }}" -var="lambda_function_runtime=${{ inputs.AWS_LAMBDA_FUNCTION_RUNTIME }}" -auto-approve
