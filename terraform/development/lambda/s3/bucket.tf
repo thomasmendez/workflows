@@ -36,5 +36,5 @@ data "aws_s3_bucket" "bucket_dev" {
 }
 
 output "bucket_dev" {
-  value = data.aws_s3_bucket.bucket_dev.bucket
+  value = aws_s3_bucket.bucket_dev.bucket
 }
