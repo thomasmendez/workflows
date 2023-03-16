@@ -48,7 +48,7 @@ on:
         required: true
 
 jobs:
-  configure_lambda_s3_dev:
+  configure_s3_dev:
     runs-on: ubuntu-latest
     if: github.ref != 'refs/heads/main'
     steps:
@@ -62,28 +62,32 @@ jobs:
         with:
           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
-      - name: Terraform Format - Existing Bucket
-        id: fmt-remote
-        run: terraform -chdir=terraform/development/lambda/remote fmt -check
+      - name: Terraform Format
+        id: terraform-fmt
+        run: terraform -chdir=terraform/development/lambda/s3 fmt -check
 
-      - name: Terraform Init - Existing Bucket
-        id: init-remote
-        run: terraform -chdir=terraform/development/lambda/remote init -backend-config="region=${{ inputs.AWS_REGION }}" -backend-config="access_key=${{ secrets.AWS_ACCESS_KEY_ID }}" -backend-config="secret_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+      - name: Terraform Init
+        id: terraform-init
+        run: terraform -chdir=terraform/development/lambda/s3 init -backend-config="region=${{ inputs.AWS_REGION }}" -backend-config="access_key=${{ secrets.AWS_ACCESS_KEY_ID }}" -backend-config="secret_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}"
 
-      - name: Terraform Validate - Existing Bucket
-        id: validate-remote
-        run: terraform -chdir=terraform/development/lambda/remote validate -no-color
+      - name: Terraform Validate
+        id: terraform-validate
+        run: terraform -chdir=terraform/development/lambda/s3 validate -no-color
+      
+      - name: Terraform Import
+        id: terraform-import
+        run: terraform -chdir=terraform/development/lambda/s3 import -var="aws_bucket_name=${{ inputs.AWS_BUCKET_NAME }}" aws_s3_bucket.bucket_dev ${{ inputs.AWS_BUCKET_NAME }}"
+        continue-on-error: true
 
-      - name: Terraform Plan - Existing Bucket
-        id: plan-remote
+      - name: Terraform Plan
+        id: terraform-plan
         run: |
           export AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}"
           export AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}"
           export AWS_DEFAULT_REGION="${{ inputs.AWS_REGION }}"
-          terraform -chdir=terraform/development/lambda/remote plan -var="aws_bucket_name=${{ inputs.AWS_BUCKET_NAME }}" -var="lambda_function_s3_key=${{ inputs.AWS_LAMBDA_FUNCTION_S3_KEY }}" -var="lambda_function_name=${{ inputs.AWS_LAMBDA_FUNCTION_NAME }}" var="lambda_function_handler=${{ inputs.AWS_LAMBDA_FUNCTION_HANDLER }}" -var="lambda_function_runtime=${{ inputs.AWS_LAMBDA_FUNCTION_RUNTIME }}" -no-color
-        continue-on-error: true
+          terraform -chdir=terraform/development/lambda/s3 plan -var="aws_bucket_name=${{ inputs.AWS_BUCKET_NAME }}" -no-color
 
-      - name: Update Pull Request - Existing Bucket
+      - name: Update Pull Request
         uses: actions/github-script@0.9.0
         if: github.event_name == 'pull_request'
         env:
@@ -113,36 +117,77 @@ jobs:
               body: output
             })
 
-      - name: Terraform Format - Create Bucket
-        id: fmt-create
-        if: steps.plan-remote.outcome == 'failure'
-        run: terraform -chdir=terraform/development/lambda/create fmt -check
-
-      - name: Terraform Init - Create Bucket
-        id: init-create
-        if: steps.plan-remote.outcome == 'failure'
-        run: terraform -chdir=terraform/development/lambda/create init -backend-config="region=${{ inputs.AWS_REGION }}" -backend-config="access_key=${{ secrets.AWS_ACCESS_KEY_ID }}" -backend-config="secret_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}"
-
-      - name: Terraform Validate - Create Bucket
-        id: validate-create
-        if: steps.plan-remote.outcome == 'failure'
-        run: terraform -chdir=terraform/development/lambda/create validate -no-color
-
-      - name: Terraform Plan - Create Bucket
-        id: plan-create
-        if: steps.plan-remote.outcome == 'failure'
+      - name: Terraform Apply
+        id: terraform-apply
         run: |
           export AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}"
           export AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}"
           export AWS_DEFAULT_REGION="${{ inputs.AWS_REGION }}"
-          terraform -chdir=terraform/development/lambda/create plan -var="aws_bucket_name=${{ inputs.AWS_BUCKET_NAME }}" -var="lambda_function_s3_key=${{ inputs.AWS_LAMBDA_FUNCTION_S3_KEY }}" -var="lambda_function_name=${{ inputs.AWS_LAMBDA_FUNCTION_NAME }}" -var="lambda_function_handler=${{ inputs.AWS_LAMBDA_FUNCTION_HANDLER }}" -var="lambda_function_runtime=${{ inputs.AWS_LAMBDA_FUNCTION_RUNTIME }}" -no-color
+          terraform -chdir=terraform/development/lambda/s3 apply -var="aws_bucket_name=${{ inputs.AWS_BUCKET_NAME }}" -auto-approve
+  
+  sync_s3_dev:
+    runs-on: ubuntu-latest
+    needs: configure_s3_dev
+    if: github.ref != 'refs/heads/main'
+    steps:
+      - name: Retrieve dist files
+        uses: actions/download-artifact@v2
+        with:
+          name: ${{ inputs.DIST_NAME }}
+          path: ${{ inputs.DIST_PATH }}
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ inputs.AWS_REGION }}
+      - name: Deploy static site to S3 bucket
+        run: aws s3 sync ${{ inputs.DIST_PATH }} s3://${{ inputs.AWS_BUCKET_NAME }}
+
+  configure_iam_dev:
+    runs-on: ubuntu-latest
+    if: github.ref != 'refs/heads/main'
+    steps:
+      - name: Clone workflow repository
+        uses: actions/checkout@v3
+        with:
+          repository: thomasmendez/workflows
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+      - name: Terraform Format
+        id: terraform-fmt
+        run: terraform -chdir=terraform/development/lambda/iam fmt -check
+
+      - name: Terraform Init
+        id: terraform-init
+        run: terraform -chdir=terraform/development/lambda/iam init -backend-config="region=${{ inputs.AWS_REGION }}" -backend-config="access_key=${{ secrets.AWS_ACCESS_KEY_ID }}" -backend-config="secret_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+
+      - name: Terraform Validate
+        id: terraform-validate
+        run: terraform -chdir=terraform/development/lambda/iam validate -no-color
+      
+      - name: Terraform Import
+        id: terraform-import
+        run: terraform -chdir=terraform/development/lambda/iam import aws_iam_role.iam_for_lambda iam_for_lambda
         continue-on-error: true
 
-      - name: Update Pull Request - Create Bucket
+      - name: Terraform Plan
+        id: terraform-plan
+        run: |
+          export AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}"
+          export AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+          export AWS_DEFAULT_REGION="${{ inputs.AWS_REGION }}"
+          terraform -chdir=terraform/development/lambda/iam plan -no-color
+
+      - name: Update Pull Request
         uses: actions/github-script@0.9.0
-        if: github.event_name == 'pull_request' && steps.plan-remote.outcome == 'failure'
+        if: github.event_name == 'pull_request'
         env:
-          PLAN: "terraform\n${{ steps.plan-create.outputs.stdout }}"
+          PLAN: "terraform\n${{ steps.plan-remote.outputs.stdout }}"
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
@@ -168,44 +213,88 @@ jobs:
               body: output
             })
 
-      - name: Terraform Plan Status - Existing Bucket && Create Bucket
-        if: steps.plan-remote.outcome == 'failure' && steps.plan-create.outcome == 'failure'
-        run: exit 1
-
-      - name: Terraform Apply - Existing Bucket
-        id: apply-remote
-        if: steps.plan-remote.outcome == 'success'
+      - name: Terraform Apply
+        id: terraform-apply
         run: |
           export AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}"
           export AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}"
           export AWS_DEFAULT_REGION="${{ inputs.AWS_REGION }}"
-          terraform -chdir=terraform/development/lambda/remote import -var="aws_bucket_name=${{ inputs.AWS_BUCKET_NAME }}" -var="lambda_function_s3_key=${{ inputs.AWS_LAMBDA_FUNCTION_S3_KEY }}" -var="lambda_function_name=${{ inputs.AWS_LAMBDA_FUNCTION_NAME }}" -var="lambda_function_handler=${{ inputs.AWS_LAMBDA_FUNCTION_HANDLER }}" -var="lambda_function_runtime=${{ inputs.AWS_LAMBDA_FUNCTION_RUNTIME }}" aws_s3_bucket.bucketdev ${{ inputs.AWS_BUCKET_NAME }}
-          terraform -chdir=terraform/development/lambda/remote apply -var="aws_bucket_name=${{ inputs.AWS_BUCKET_NAME }}" -var="lambda_function_s3_key=${{ inputs.AWS_LAMBDA_FUNCTION_S3_KEY }}" -var="lambda_function_name=${{ inputs.AWS_LAMBDA_FUNCTION_NAME }}" -var="lambda_function_handler=${{ inputs.AWS_LAMBDA_FUNCTION_HANDLER }}" -var="lambda_function_runtime=${{ inputs.AWS_LAMBDA_FUNCTION_RUNTIME }}" -auto-approve
+          terraform -chdir=terraform/development/lambda/iam apply -auto-approve
 
-      - name: Terraform Apply - Create Bucket
-        id: apply-create
-        if: steps.plan-create.outcome == 'success'
-        run: |
-          export AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}"
-          export AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}"
-          export AWS_DEFAULT_REGION="${{ inputs.AWS_REGION }}"
-          terraform -chdir=terraform/development/lambda/create apply -var="aws_bucket_name=${{ inputs.AWS_BUCKET_NAME }}" -var="lambda_function_s3_key=${{ inputs.AWS_LAMBDA_FUNCTION_S3_KEY }}" -var="lambda_function_name=${{ inputs.AWS_LAMBDA_FUNCTION_NAME }}" -var="lambda_function_handler=${{ inputs.AWS_LAMBDA_FUNCTION_HANDLER }}" -var="lambda_function_runtime=${{ inputs.AWS_LAMBDA_FUNCTION_RUNTIME }}" -auto-approve
-
-  sync_s3_dev:
+  configure_lambda_s3_dev:
     runs-on: ubuntu-latest
-    needs: configure_lambda_s3_dev
+    needs: [configure_s3_dev, sync_s3_dev, configure_iam_dev]
     if: github.ref != 'refs/heads/main'
     steps:
-      - name: Retrieve dist files
-        uses: actions/download-artifact@v2
+      - name: Clone workflow repository
+        uses: actions/checkout@v3
         with:
-          name: ${{ inputs.DIST_NAME }}
-          path: ${{ inputs.DIST_PATH }}
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
+          repository: thomasmendez/workflows
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ inputs.AWS_REGION }}
-      - name: Deploy static site to S3 bucket
-        run: aws s3 sync ${{ inputs.DIST_PATH }} s3://${{ inputs.AWS_BUCKET_NAME }}
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+      - name: Terraform Format
+        id: terraform-fmt
+        run: terraform -chdir=terraform/development/lambda/function fmt -check
+
+      - name: Terraform Init
+        id: terraform-init
+        run: terraform -chdir=terraform/development/lambda/function init -backend-config="region=${{ inputs.AWS_REGION }}" -backend-config="access_key=${{ secrets.AWS_ACCESS_KEY_ID }}" -backend-config="secret_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+
+      - name: Terraform Validate
+        id: terraform-validate
+        run: terraform -chdir=terraform/development/lambda/function validate -no-color
+      
+      - name: Terraform Import
+        id: terraform-import
+        run: terraform -chdir=terraform/development/lambda/function import -var="aws_bucket_name=${{ inputs.AWS_BUCKET_NAME }}" -var="lambda_function_s3_key=${{ inputs.AWS_LAMBDA_FUNCTION_S3_KEY }}" -var="lambda_function_name=${{ inputs.AWS_LAMBDA_FUNCTION_NAME }}" -var="lambda_function_handler=${{ inputs.AWS_LAMBDA_FUNCTION_HANDLER }}" -var="lambda_function_runtime=${{ inputs.AWS_LAMBDA_FUNCTION_RUNTIME }}" aws_lambda_function.lambda_dev ${{ inputs.AWS_LAMBDA_FUNCTION_NAME }}
+        continue-on-error: true
+
+      - name: Terraform Plan
+        id: terraform-plan
+        run: |
+          export AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}"
+          export AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+          export AWS_DEFAULT_REGION="${{ inputs.AWS_REGION }}"
+          terraform -chdir=terraform/development/lambda/function plan -var="aws_bucket_name=${{ inputs.AWS_BUCKET_NAME }}" -var="lambda_function_s3_key=${{ inputs.AWS_LAMBDA_FUNCTION_S3_KEY }}" -var="lambda_function_name=${{ inputs.AWS_LAMBDA_FUNCTION_NAME }}" -var="lambda_function_handler=${{ inputs.AWS_LAMBDA_FUNCTION_HANDLER }}" -var="lambda_function_runtime=${{ inputs.AWS_LAMBDA_FUNCTION_RUNTIME }}" -no-color
+
+      - name: Update Pull Request
+        uses: actions/github-script@0.9.0
+        if: github.event_name == 'pull_request'
+        env:
+          PLAN: "terraform\n${{ steps.plan-remote.outputs.stdout }}"
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
+            #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
+            #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
+            #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
+
+            <details><summary>Show Plan</summary>
+
+            \`\`\`\n
+            ${process.env.PLAN}
+            \`\`\`
+
+            </details>
+
+            *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+
+            github.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            })
+
+      - name: Terraform Apply
+        id: terraform-apply
+        run: |
+          export AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}"
+          export AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+          export AWS_DEFAULT_REGION="${{ inputs.AWS_REGION }}"
+          terraform -chdir=terraform/development/lambda/function apply -var="aws_bucket_name=${{ inputs.AWS_BUCKET_NAME }}" -var="lambda_function_s3_key=${{ inputs.AWS_LAMBDA_FUNCTION_S3_KEY }}" -var="lambda_function_name=${{ inputs.AWS_LAMBDA_FUNCTION_NAME }}" -var="lambda_function_handler=${{ inputs.AWS_LAMBDA_FUNCTION_HANDLER }}" -var="lambda_function_runtime=${{ inputs.AWS_LAMBDA_FUNCTION_RUNTIME }}" -auto-approve
