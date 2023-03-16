@@ -30,7 +30,3 @@ resource "aws_s3_bucket_lifecycle_configuration" "bucket_dev" {
     }
   }
 }
-
-data "aws_s3_bucket" "bucket_dev" {
-  bucket = var.aws_bucket_name
-}
