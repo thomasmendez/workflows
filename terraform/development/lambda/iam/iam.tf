@@ -1,5 +1,5 @@
-resource "aws_iam_role" "iam_for_lambda" {
-  name = "iam_for_lambda"
+resource "aws_iam_role" "iam_for_lambda_dev" {
+  name = "iam_for_lambda_dev"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -13,8 +13,12 @@ resource "aws_iam_role" "iam_for_lambda" {
       }
     ]
   })
+
+  tags = {
+    Environment = var.env
+  }
 }
 
-data "aws_iam_role" "iam_for_lambda" {
-  name = "iam_for_lambda"
+data "aws_iam_role" "iam_for_lambda_dev" {
+  name = "iam_for_lambda_dev"
 }
