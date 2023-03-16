@@ -6,7 +6,3 @@ resource "aws_lambda_function" "lambda_dev" {
   handler       = var.lambda_function_handler
   runtime       = var.lambda_function_runtime
 }
-
-data "aws_iam_role" "iam_for_lambda" {
-  name = "iam_for_lambda"
-}
