@@ -76,7 +76,11 @@ jobs:
       
       - name: Terraform Import
         id: terraform-import
-        run: terraform -chdir=terraform/development/lambda/s3 import -var="aws_bucket_name=${{ inputs.AWS_BUCKET_NAME }}" aws_s3_bucket.bucket_dev ${{ inputs.AWS_BUCKET_NAME }}"
+        run: |
+          export AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}"
+          export AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+          export AWS_DEFAULT_REGION="${{ inputs.AWS_REGION }}"
+          terraform -chdir=terraform/development/lambda/s3 import -var="aws_bucket_name=${{ inputs.AWS_BUCKET_NAME }}" aws_s3_bucket.bucket_dev ${{ inputs.AWS_BUCKET_NAME }}
         continue-on-error: true
 
       - name: Terraform Plan
@@ -172,7 +176,11 @@ jobs:
       
       - name: Terraform Import
         id: terraform-import
-        run: terraform -chdir=terraform/development/lambda/iam import aws_iam_role.iam_for_lambda iam_for_lambda
+        run: |
+          export AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}"
+          export AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+          export AWS_DEFAULT_REGION="${{ inputs.AWS_REGION }}"
+          terraform -chdir=terraform/development/lambda/iam import aws_iam_role.iam_for_lambda iam_for_lambda
         continue-on-error: true
 
       - name: Terraform Plan
@@ -250,7 +258,11 @@ jobs:
       
       - name: Terraform Import
         id: terraform-import
-        run: terraform -chdir=terraform/development/lambda/function import -var="aws_bucket_name=${{ inputs.AWS_BUCKET_NAME }}" -var="lambda_function_s3_key=${{ inputs.AWS_LAMBDA_FUNCTION_S3_KEY }}" -var="lambda_function_name=${{ inputs.AWS_LAMBDA_FUNCTION_NAME }}" -var="lambda_function_handler=${{ inputs.AWS_LAMBDA_FUNCTION_HANDLER }}" -var="lambda_function_runtime=${{ inputs.AWS_LAMBDA_FUNCTION_RUNTIME }}" aws_lambda_function.lambda_dev ${{ inputs.AWS_LAMBDA_FUNCTION_NAME }}
+        run: |
+          export AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}"
+          export AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+          export AWS_DEFAULT_REGION="${{ inputs.AWS_REGION }}"
+          terraform -chdir=terraform/development/lambda/function import -var="aws_bucket_name=${{ inputs.AWS_BUCKET_NAME }}" -var="lambda_function_s3_key=${{ inputs.AWS_LAMBDA_FUNCTION_S3_KEY }}" -var="lambda_function_name=${{ inputs.AWS_LAMBDA_FUNCTION_NAME }}" -var="lambda_function_handler=${{ inputs.AWS_LAMBDA_FUNCTION_HANDLER }}" -var="lambda_function_runtime=${{ inputs.AWS_LAMBDA_FUNCTION_RUNTIME }}" aws_lambda_function.lambda_dev ${{ inputs.AWS_LAMBDA_FUNCTION_NAME }}
         continue-on-error: true
 
       - name: Terraform Plan
