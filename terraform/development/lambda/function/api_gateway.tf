@@ -20,7 +20,7 @@ resource "aws_api_gateway_method_response" "root_method_response_dev" {
   status_code = "200"
 
   response_models = {
-       "application/json" = "Empty"
+    "application/json" = "Empty"
   }
 }
 
@@ -53,7 +53,7 @@ resource "aws_api_gateway_method_response" "api_gateway_method_response_dev" {
   status_code = "200"
 
   response_models = {
-       "application/json" = "Empty"
+    "application/json" = "Empty"
   }
 }
 
