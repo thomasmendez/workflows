@@ -1,5 +1,5 @@
 resource "aws_api_gateway_rest_api" "api_gateway_dev" {
-  name = "api_gateway_dev"
+  name = "${var.lambda_function_name}-api-gateway"
 
   endpoint_configuration {
     types = ["REGIONAL"]
@@ -94,5 +94,5 @@ resource "aws_api_gateway_deployment" "api_gateway_deployment_dev" {
 resource "aws_api_gateway_stage" "apigateway_stage_dev" {
   deployment_id = aws_api_gateway_deployment.api_gateway_deployment_dev.id
   rest_api_id   = aws_api_gateway_rest_api.api_gateway_dev.id
-  stage_name    = "apigateway_stage_dev"
+  stage_name    = var.env
 }
