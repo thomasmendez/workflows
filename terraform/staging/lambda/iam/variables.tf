@@ -1,7 +1,7 @@
 variable "env" {
   description = "Environment"
   type        = string
-  default     = "dev"
+  default     = "stg"
 }
 
 variable "lambda_function_name" {

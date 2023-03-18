@@ -1,10 +1,10 @@
 variable "env" {
   description = "Environment"
   type        = string
-  default     = "dev"
+  default     = "prd"
 }
 
-variable "lambda_function_name" {
-  description = "Lambda function name"
+variable "aws_bucket_name" {
+  description = "S3 Bucket Name"
   type        = string
 }
