@@ -66,7 +66,7 @@ resource "aws_api_gateway_integration" "integration_dev" {
   uri                     = aws_lambda_function.lambda_dev.invoke_arn
 }
 
-resource "aws_lambda_permission" "apigw_lambda" {
+resource "aws_lambda_permission" "api_gateway_lambda" {
   statement_id  = "AllowExecutionFromAPIGateway"
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.lambda_dev.function_name
