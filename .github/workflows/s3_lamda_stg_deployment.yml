@@ -178,7 +178,7 @@ jobs:
           export AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}"
           export AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}"
           export AWS_DEFAULT_REGION="${{ inputs.AWS_REGION }}"
-          terraform -chdir=terraform/staging/lambda/iam import aws_iam_role.iam_for_lambda_stg iam_for_lambda_stg
+          terraform -chdir=terraform/staging/lambda/iam import -var="lambda_function_name=${{ inputs.AWS_LAMBDA_FUNCTION_NAME }}" aws_iam_role.iam_for_lambda_stg ${{ inputs.AWS_LAMBDA_FUNCTION_NAME }}-lambda-stg
         continue-on-error: true
 
       - name: Terraform Plan
@@ -187,7 +187,7 @@ jobs:
           export AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}"
           export AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}"
           export AWS_DEFAULT_REGION="${{ inputs.AWS_REGION }}"
-          terraform -chdir=terraform/staging/lambda/iam plan -no-color
+          terraform -chdir=terraform/staging/lambda/iam plan -var="lambda_function_name=${{ inputs.AWS_LAMBDA_FUNCTION_NAME }}" -no-color
 
       - name: Update Pull Request
         uses: actions/github-script@0.9.0
@@ -225,7 +225,7 @@ jobs:
           export AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}"
           export AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}"
           export AWS_DEFAULT_REGION="${{ inputs.AWS_REGION }}"
-          terraform -chdir=terraform/staging/lambda/iam apply -auto-approve
+          terraform -chdir=terraform/staging/lambda/iam apply -var="lambda_function_name=${{ inputs.AWS_LAMBDA_FUNCTION_NAME }}" -auto-approve
 
   configure_lambda_s3_stg:
     runs-on: ubuntu-latest
@@ -260,6 +260,8 @@ jobs:
           export AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}"
           export AWS_DEFAULT_REGION="${{ inputs.AWS_REGION }}"
           terraform -chdir=terraform/staging/lambda/function import -var="aws_bucket_name=${{ inputs.AWS_BUCKET_NAME }}" -var="lambda_function_s3_key=${{ inputs.AWS_LAMBDA_FUNCTION_S3_KEY }}" -var="lambda_function_name=${{ inputs.AWS_LAMBDA_FUNCTION_NAME }}" -var="lambda_function_handler=${{ inputs.AWS_LAMBDA_FUNCTION_HANDLER }}" -var="lambda_function_runtime=${{ inputs.AWS_LAMBDA_FUNCTION_RUNTIME }}" aws_lambda_function.lambda_stg ${{ inputs.AWS_LAMBDA_FUNCTION_NAME }}
+        # terraform -chdir=terraform/staging/lambda/function import -var="aws_bucket_name=${{ inputs.AWS_BUCKET_NAME }}" -var="lambda_function_s3_key=${{ inputs.AWS_LAMBDA_FUNCTION_S3_KEY }}" -var="lambda_function_name=${{ inputs.AWS_LAMBDA_FUNCTION_NAME }}" -var="lambda_function_handler=${{ inputs.AWS_LAMBDA_FUNCTION_HANDLER }}" -var="lambda_function_runtime=${{ inputs.AWS_LAMBDA_FUNCTION_RUNTIME }}" aws_lambda_permission.api_gateway_lambda "${{ inputs.AWS_LAMBDA_FUNCTION_NAME }}/AllowExecutionFromAPIGateway"
+        # terraform -chdir=terraform/staging/lambda/function import -var="aws_bucket_name=${{ inputs.AWS_BUCKET_NAME }}" -var="lambda_function_s3_key=${{ inputs.AWS_LAMBDA_FUNCTION_S3_KEY }}" -var="lambda_function_name=${{ inputs.AWS_LAMBDA_FUNCTION_NAME }}" -var="lambda_function_handler=${{ inputs.AWS_LAMBDA_FUNCTION_HANDLER }}" -var="lambda_function_runtime=${{ inputs.AWS_LAMBDA_FUNCTION_RUNTIME }}" aws_api_gateway_rest_api.api_gateway_stg ${{ inputs.AWS_LAMBDA_FUNCTION_NAME }}-api-gateway
         continue-on-error: true
 
       - name: Terraform Plan
