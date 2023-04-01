@@ -1,5 +1,5 @@
 resource "aws_s3_bucket" "bucket_dev" {
-  bucket = var.aws_bucket_name
+  bucket        = var.aws_bucket_name
   force_destroy = true
   tags = {
     Environment = var.env
