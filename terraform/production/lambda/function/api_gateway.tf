@@ -66,11 +66,17 @@ resource "aws_api_gateway_integration" "integration_prd" {
   uri                     = aws_lambda_function.lambda_prd.invoke_arn
 }
 
-resource "aws_lambda_permission" "apigw_lambda" {
+resource "aws_lambda_permission" "api_gateway_lambda" {
   statement_id  = "AllowExecutionFromAPIGateway"
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.lambda_prd.function_name
   principal     = "apigateway.amazonaws.com"
+
+  lifecycle {
+    replace_triggered_by = [
+      aws_lambda_function.lambda_prd
+    ]
+  }
 
   source_arn = "${aws_api_gateway_rest_api.api_gateway_prd.execution_arn}/*/*"
 }
@@ -91,7 +97,7 @@ resource "aws_api_gateway_deployment" "api_gateway_deployment_prd" {
   }
 }
 
-resource "aws_api_gateway_stage" "apigateway_stage_prd" {
+resource "aws_api_gateway_stage" "api_gateway_stage_prd" {
   deployment_id = aws_api_gateway_deployment.api_gateway_deployment_prd.id
   rest_api_id   = aws_api_gateway_rest_api.api_gateway_prd.id
   stage_name    = var.env
