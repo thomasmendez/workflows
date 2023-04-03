@@ -72,12 +72,6 @@ resource "aws_lambda_permission" "api_gateway_lambda" {
   function_name = aws_lambda_function.lambda_stg.function_name
   principal     = "apigateway.amazonaws.com"
 
-  lifecycle {
-    replace_triggered_by = [
-      aws_lambda_function.lambda_stg
-    ]
-  }
-
   source_arn = "${aws_api_gateway_rest_api.api_gateway_stg.execution_arn}/*/*"
 }
 
