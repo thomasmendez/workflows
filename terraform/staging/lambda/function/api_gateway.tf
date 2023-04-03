@@ -66,7 +66,7 @@ resource "aws_api_gateway_integration" "integration_stg" {
   uri                     = aws_lambda_function.lambda_stg.invoke_arn
 }
 
-resource "aws_lambda_permission" "apigw_lambda" {
+resource "aws_lambda_permission" "api_gateway_lambda" {
   statement_id  = "AllowExecutionFromAPIGateway"
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.lambda_stg.function_name
@@ -97,7 +97,7 @@ resource "aws_api_gateway_deployment" "api_gateway_deployment_stg" {
   }
 }
 
-resource "aws_api_gateway_stage" "apigateway_stage_stg" {
+resource "aws_api_gateway_stage" "api_gateway_stage_stg" {
   deployment_id = aws_api_gateway_deployment.api_gateway_deployment_stg.id
   rest_api_id   = aws_api_gateway_rest_api.api_gateway_stg.id
   stage_name    = var.env
