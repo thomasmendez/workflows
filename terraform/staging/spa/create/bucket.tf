@@ -5,9 +5,17 @@ resource "aws_s3_bucket" "bucketstg" {
   }
 }
 
-resource "aws_s3_bucket_acl" "bucketstg" {
+resource "aws_s3_bucket_acl" "bucket_stg" {
   bucket = var.aws_bucket_name
-  acl    = "public-read"
+  acl    = "private"
+  depends_on = [aws_s3_bucket_ownership_controls.bucket_stg]
+}
+
+resource "aws_s3_bucket_ownership_controls" "bucket_stg" {
+  bucket =  var.aws_bucket_name
+  rule {
+    object_ownership = "ObjectWriter"
+  }
 }
 
 # resource "aws_s3_bucket_lifecycle_configuration" "bucketstg" {

@@ -8,6 +8,14 @@ resource "aws_s3_bucket" "bucket_stg" {
 resource "aws_s3_bucket_acl" "bucket_stg" {
   bucket = var.aws_bucket_name
   acl    = "private"
+  depends_on = [aws_s3_bucket_ownership_controls.bucket_stg]
+}
+
+resource "aws_s3_bucket_ownership_controls" "bucket_stg" {
+  bucket =  var.aws_bucket_name
+  rule {
+    object_ownership = "ObjectWriter"
+  }
 }
 
 resource "aws_s3_bucket_public_access_block" "bucket_stg" {
