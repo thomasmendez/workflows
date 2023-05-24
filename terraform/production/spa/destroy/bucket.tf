@@ -8,7 +8,15 @@ resource "aws_s3_bucket" "bucketprd" {
 
 resource "aws_s3_bucket_acl" "bucketprd" {
   bucket = var.aws_bucket_name
-  acl    = "public-read"
+  acl    = "private"
+  depends_on = [aws_s3_bucket_ownership_controls.bucketprd]
+}
+
+resource "aws_s3_bucket_ownership_controls" "bucketprd" {
+  bucket =  var.aws_bucket_name
+  rule {
+    object_ownership = "ObjectWriter"
+  }
 }
 
 # resource "aws_s3_bucket_lifecycle_configuration" "bucketprd" {

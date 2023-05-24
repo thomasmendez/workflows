@@ -5,9 +5,17 @@ resource "aws_s3_bucket" "bucket_prd" {
   }
 }
 
-resource "aws_s3_bucket_acl" "bucket_prd" {
+resource "aws_s3_bucket_acl" "bucketprd" {
   bucket = var.aws_bucket_name
   acl    = "private"
+  depends_on = [aws_s3_bucket_ownership_controls.bucketprd]
+}
+
+resource "aws_s3_bucket_ownership_controls" "bucketprd" {
+  bucket =  var.aws_bucket_name
+  rule {
+    object_ownership = "ObjectWriter"
+  }
 }
 
 resource "aws_s3_bucket_public_access_block" "bucket_prd" {
