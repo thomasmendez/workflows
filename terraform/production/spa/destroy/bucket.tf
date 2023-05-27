@@ -6,17 +6,9 @@ resource "aws_s3_bucket" "bucketprd" {
   }
 }
 
-resource "aws_s3_bucket_acl" "bucketprd" {
-  bucket     = var.aws_bucket_name
-  acl        = "private"
-  depends_on = [aws_s3_bucket_ownership_controls.bucketprd]
-}
-
-resource "aws_s3_bucket_ownership_controls" "bucketprd" {
+resource "aws_s3_bucket_acl" "bucketdev" {
   bucket = var.aws_bucket_name
-  rule {
-    object_ownership = "ObjectWriter"
-  }
+  acl    = "public-read"
 }
 
 # resource "aws_s3_bucket_lifecycle_configuration" "bucketprd" {
