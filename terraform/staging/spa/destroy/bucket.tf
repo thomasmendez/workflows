@@ -6,17 +6,30 @@ resource "aws_s3_bucket" "bucketstg" {
   }
 }
 
-resource "aws_s3_bucket_acl" "bucket_stg" {
-  bucket = var.aws_bucket_name
-  acl    = "private"
-  depends_on = [aws_s3_bucket_ownership_controls.bucket_stg]
+resource "aws_s3_bucket_ownership_controls" "bucketstg" {
+  bucket = aws_s3_bucket.bucketstg.id
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
 }
 
-resource "aws_s3_bucket_ownership_controls" "bucket_stg" {
-  bucket =  var.aws_bucket_name
-  rule {
-    object_ownership = "ObjectWriter"
-  }
+resource "aws_s3_bucket_public_access_block" "bucketstg" {
+  bucket = aws_s3_bucket.bucketstg.id
+
+  block_public_acls       = false
+  block_public_policy     = false
+  ignore_public_acls      = false
+  restrict_public_buckets = false
+}
+
+resource "aws_s3_bucket_acl" "bucketstg" {
+  depends_on = [
+    aws_s3_bucket_ownership_controls.bucketstg,
+    aws_s3_bucket_public_access_block.bucketstg,
+  ]
+
+  bucket = aws_s3_bucket.bucketstg.id
+  acl    = "public-read"
 }
 
 # resource "aws_s3_bucket_lifecycle_configuration" "bucketstg" {
