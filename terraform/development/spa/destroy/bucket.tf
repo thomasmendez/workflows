@@ -7,16 +7,8 @@ resource "aws_s3_bucket" "bucketdev" {
 }
 
 resource "aws_s3_bucket_acl" "bucketdev" {
-  bucket     = var.aws_bucket_name
-  acl        = "private"
-  depends_on = [aws_s3_bucket_ownership_controls.bucketdev]
-}
-
-resource "aws_s3_bucket_ownership_controls" "bucketdev" {
   bucket = var.aws_bucket_name
-  rule {
-    object_ownership = "ObjectWriter"
-  }
+  acl    = "public-read"
 }
 
 resource "aws_s3_bucket_lifecycle_configuration" "bucketdev" {
